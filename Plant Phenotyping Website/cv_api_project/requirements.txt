@@ -1,0 +1,10 @@
+Make sure you have:
+fastapi
+uvicorn
+tensorflow
+pillow
+numpy
+opencv-python
+scikit-image
+patchify
+networkx

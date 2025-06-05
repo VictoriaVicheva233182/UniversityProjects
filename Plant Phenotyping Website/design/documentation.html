@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>IRIS – Documentation</title>
+
+    <!-- ✅ Use Montserrat instead of Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Ensure height fixes -->
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        main.page-content {
+            flex: 1;
+            padding: 4rem 2rem;
+            background-color: #e4fdff;
+            text-align: center;
+        }
+
+        .documentation-section h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .documentation-section ul {
+            list-style: none;
+            padding: 0;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .documentation-section ul li {
+            background: #fff;
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .documentation-section ul li:hover {
+            transform: translateY(-2px);
+            background-color: #dffbe7;
+        }
+
+        .documentation-section ul li a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .documentation-section ul li a:hover {
+            color: var(--green-dark);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">📗 IRIS</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="analysis.html">Analysis</a></li>
+                <li><a href="results.html">Results</a></li>
+                <li><a href="download.html">Download</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="documentation.html" class="active">Documentation</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="page-content">
+        <section class="documentation-section">
+            <h1>Documentation</h1>
+            <ul>
+                <li><a href="#">User Guide (PDF)</a></li>
+                <li><a href="#">API Reference</a></li>
+                <li><a href="#">Tutorial Videos</a></li>
+                <li><a href="#">FAQs</a></li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2>📗 IRIS</h2>
+                <p>Advanced plant phenotyping platform powered by computer vision technology.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="documentation.html">Documentation</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact</h3>
+                <ul>
+                    <li>Netherlands Plant Eco-phenotyping Centre (NPEC)</li>
+                    <li>Email: <a href="mailto:info@npec-web.nl">info@npec-web.nl</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2025 IRIS – Netherlands Plant Eco-phenotyping Centre. All rights reserved.
+        </div>
+    </footer>
+
+</body>
+
+</html>
