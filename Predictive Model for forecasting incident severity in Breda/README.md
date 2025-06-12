@@ -5,7 +5,6 @@
 
 This project aims to build a machine learning model that can accurately predict the **severity of incidents** based on historical data. The model supports risk management teams in responding to incidents more proactively and efficiently.
 
-> 🚧 **Note:** This project is still under development. Further evaluation and deployment components are in progress.
 
 ## Objective
 
