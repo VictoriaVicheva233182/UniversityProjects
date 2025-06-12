@@ -1,4 +1,4 @@
-Computer Vision: Root Segmentation and Analysis
+### Computer Vision: Root Segmentation and Analysis
 This project uses computer vision techniques to segment and analyze plant roots from images. The main objective is to extract root structures and calculate key features like total length.
 
 Features
