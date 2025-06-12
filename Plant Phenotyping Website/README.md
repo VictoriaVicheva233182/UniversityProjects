@@ -38,10 +38,5 @@ To provide an end-to-end, browser-based platform for:
 - 🧪 **Backend:** FastAPI (Python), modular API for analysis  
 - 🖥️ **Deployment-ready:** Designed for local or cloud container deployment
 
-## Contact
-
-> IRIS was developed in collaboration with  
-> **Netherlands Plant Eco-phenotyping Centre (NPEC)**  
-> 📧 info@npec-web.nl
 
 > 📌 *This platform demonstrates the fusion of computer vision, deep learning, and usability to accelerate plant science.*
