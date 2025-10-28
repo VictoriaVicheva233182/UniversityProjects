@@ -121,7 +121,7 @@ Due to the local-only nature of this deployment and strict data confidentiality 
 
 A demonstration video showcasing the system's capabilities is available for external viewing.
 
-**📺 [Watch Demo Video](#)** *(Link to be added)*
+**📺 [Watch Demo Video](#)** *(https://github.com/VictoriaVicheva233182/UniversityProjects/tree/a9c4288813b91cca8f5270617b63ca9aa65a8933/Internship%202025%20Project/demo%20video)*
 
 ---
 
