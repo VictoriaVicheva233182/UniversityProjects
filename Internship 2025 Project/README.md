@@ -313,8 +313,8 @@ This system was developed during a **20-week software engineering internship** a
 ## 🤝 Contact
 
 **Victoria Vicheva**  
-- GitHub: [@s01-VictoriaVicheva233182](https://github.com/VictoriaVicheva233182/UniversityProjects.git)
-- LinkedIn: [Your LinkedIn](www.linkedin.com/in/victoria-vicheva-3817b6263)
+- GitHub: [Personal Repo University Projects](https://github.com/VictoriaVicheva233182/UniversityProjects.git)
+- LinkedIn: [My LinkedIn](www.linkedin.com/in/victoria-vicheva-3817b6263)
 - Email: [victoria.v.vicheva@gmail.com]
 
 ---
