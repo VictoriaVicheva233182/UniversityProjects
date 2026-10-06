@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI assurance report: Havenkade customer assistant</title>
+<style>
+  :root {
+    --ink: #1b2a33; --muted: #5b6b73; --paper: #f2f4f3; --sheet: #ffffff; --rule: #d8dedd;
+    --harbor: #1f5f73; --harbor-soft: #e3eef1;
+    --critical: #9b1c1c; --high: #b9420c; --medium: #946000; --low: #2f6b3b;
+    --t-critical: #f3d6d6; --t-high: #f8e0cf; --t-medium: #f6ebc8; --t-low: #ddebdd;
+    --serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--sans); }
+  .sheet { max-width: 880px; margin: 32px auto; background: var(--sheet); padding: 56px 64px; border-top: 6px solid var(--harbor); }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.2; margin: 0; }
+  h1 { font-size: 2.4rem; letter-spacing: -0.01em; max-width: 18ch; }
+  h2 { font-size: 1.55rem; margin: 56px 0 16px; padding-top: 24px; border-top: 1px solid var(--rule); }
+  h3 { font-size: 1.2rem; margin: 0 0 8px; }
+  p, li { max-width: 72ch; }
+  .meta { display: grid; grid-template-columns: max-content 1fr; gap: 4px 20px; margin: 24px 0 0; color: var(--muted); font-size: 0.93rem; }
+  .meta dt { font-weight: 600; color: var(--ink); }
+  .meta dd { margin: 0; }
+  .notice { margin: 28px 0 0; padding: 14px 18px; background: var(--t-medium); border-left: 4px solid var(--medium); }
+  .matrices { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin: 36px 0 8px; }
+  .matrix figcaption { font-family: var(--serif); font-size: 1.1rem; margin-bottom: 10px; }
+  .grid { display: grid; grid-template-columns: 22px repeat(5, 1fr); grid-auto-rows: 52px; gap: 3px; font-size: 0.78rem; }
+  .grid .axis { display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .grid .cell { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 3px; padding: 3px; }
+  .band-critical { background: var(--t-critical); } .band-high { background: var(--t-high); }
+  .band-medium { background: var(--t-medium); } .band-low { background: var(--t-low); }
+  .chip { background: var(--ink); color: #fff; padding: 1px 5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .axis-label { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+  ul.points { padding-left: 20px; } ul.points li { margin: 6px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-weight: 600; background: var(--paper); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .table-wrap { overflow-x: auto; }
+  .rating { font-weight: 700; white-space: nowrap; }
+  .rating.Critical { color: var(--critical); } .rating.High { color: var(--high); }
+  .rating.Medium { color: var(--medium); } .rating.Low { color: var(--low); }
+  .finding { margin: 40px 0 0; }
+  .finding header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .finding .ref { color: var(--muted); font-size: 0.88rem; margin: 2px 0 12px; }
+  .shift { display: grid; grid-template-columns: 110px 1fr 120px; gap: 6px 12px; align-items: center; margin: 14px 0; font-size: 0.9rem; }
+  .bar { height: 12px; background: var(--paper); position: relative; }
+  .bar span { position: absolute; inset: 0 auto 0 0; }
+  .bar.before span { background: var(--ink); } .bar.after span { background: var(--harbor); }
+  .evidence { background: var(--paper); padding: 12px 16px; margin: 10px 0; font-size: 0.88rem; }
+  .evidence b { display: block; margin-top: 6px; }
+  .evidence b:first-child { margin-top: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .two ul { padding-left: 18px; margin: 6px 0; }
+  .small { font-size: 0.85rem; color: var(--muted); }
+  code { font-size: 0.85em; background: var(--paper); padding: 1px 4px; }
+  @media (max-width: 760px) {
+    .sheet { padding: 28px 20px; margin: 0; }
+    .matrices, .two { grid-template-columns: 1fr; }
+    h1 { font-size: 1.9rem; }
+  }
+  @media print {
+    body { background: #fff; } .sheet { margin: 0; padding: 0; border: 0; }
+    .finding, table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <h1>AI assurance report: Havenkade customer assistant</h1>
+  <dl class="meta">
+    <dt>Date</dt><dd>{{ date }}</dd>
+    <dt>System tested</dt><dd>RAG customer assistant, fictional Havenkade Bank N.V.</dd>
+    <dt>Target model</dt><dd>{{ baseline.target_llm }}</dd>
+    <dt>Scoring</dt><dd>{% if baseline.judge %}Deterministic detectors and LLM judge ({{ baseline.judge }}){% else %}Deterministic detectors and keyword rules{% endif %}</dd>
+    <dt>Prepared by</dt><dd>Victoria Vicheva</dd>
+  </dl>
+  {% if simulated %}
+  <p class="notice"><strong>Simulated run.</strong> These results come from the scripted test model, which exists to check the pipeline. They are not findings. Run the suite against a real model before sharing this report.</p>
+  {% endif %}
+
+  <section class="matrices" aria-label="Risk heat maps before and after hardening">
+    {% for label, side in [("Before hardening", "before"), ("After hardening", "after")] %}
+    <figure class="matrix" style="margin:0">
+      <figcaption>{{ label }}</figcaption>
+      <div class="grid" role="table">
+        {% for l in [5, 4, 3, 2, 1] %}
+          <div class="axis" role="rowheader">{{ l }}</div>
+          {% for i in [1, 2, 3, 4, 5] %}
+            {% set s = l * i %}
+            <div class="cell {{ 'band-critical' if s >= 15 else 'band-high' if s >= 10 else 'band-medium' if s >= 6 else 'band-low' }}" role="cell">
+              {% for f in findings if f[side].risk.likelihood == l and f.impact == i %}<span class="chip" title="{{ f.title }}">{{ f.id }}</span>{% endfor %}
+            </div>
+          {% endfor %}
+        {% endfor %}
+        <div></div>{% for i in [1, 2, 3, 4, 5] %}<div class="axis">{{ i }}</div>{% endfor %}
+      </div>
+      <div class="axis-label">Impact (left to right) against likelihood (bottom to top)</div>
+    </figure>
+    {% endfor %}
+  </section>
+
+  <h2>Executive summary</h2>
+  <ul class="points">
+    {% for p in summary_points %}<li>{{ p }}</li>{% endfor %}
+  </ul>
+
+  <h2>Findings overview</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>ID</th><th>Risk</th><th>OWASP LLM</th><th class="num">Attack success before</th><th class="num">After</th><th>Rating before</th><th>After</th></tr></thead>
+    <tbody>
+    {% for f in findings %}
+      <tr>
+        <td>{{ f.id }}</td><td>{{ f.title }}</td><td>{{ f.owasp }}</td>
+        <td class="num">{{ pct(f.before.asr) }} <span class="small">({{ f.before.successes }}/{{ f.before.runs }})</span></td>
+        <td class="num">{{ pct(f.after.asr) }} <span class="small">({{ f.after.successes }}/{{ f.after.runs }})</span></td>
+        <td><span class="rating {{ f.before.risk.rating }}">{{ f.before.risk.rating }}</span></td>
+        <td><span class="rating {{ f.after.risk.rating }}">{{ f.after.risk.rating }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="small">Attack success rate is the share of attempts where the detector confirmed the harmful outcome. Ratings combine impact (1 to 5, set per category) with a likelihood level derived from the observed attack success rate.</p>
+
+  <h2>Scope and approach</h2>
+  <p>The system under test is a retrieval augmented customer assistant for a fictional Dutch bank. It answers from a knowledge base of policy documents and from an account lookup that returns customer records. The threat model assumes three attackers: a logged in customer trying to misuse the assistant, an outsider who has placed content in a partner feed that the bank indexes, and a customer trying to obtain another customer's data.</p>
+  <p>Both configurations ran the same {{ baseline.attacks.runs }} attack attempts and {{ baseline.benign.questions }} normal customer questions. Attacks that are sensitive to phrasing were repeated with prompt converters ({{ baseline.converters | join(", ") }}). Every test session was logged in as the same synthetic customer. Success was decided by detectors that look for planted canary tokens, other customers' identifiers, the phishing domain, unsupported numbers and prohibited advice.</p>
+
+  <h2>Detailed findings</h2>
+  {% for f in findings %}
+  <article class="finding">
+    <header>
+      <h3>{{ f.id }}. {{ f.title }}</h3>
+      <span class="rating {{ f.before.risk.rating }}">{{ f.before.risk.rating }} before, <span class="rating {{ f.after.risk.rating }}">{{ f.after.risk.rating }}</span> after</span>
+    </header>
+    <p class="ref">{{ f.owasp }}. MITRE ATLAS: {{ f.atlas }}. Impact {{ f.impact }} of 5.</p>
+    <p>{{ f.description }}</p>
+    <div class="shift" aria-label="Attack success rate before and after">
+      <span>Before</span><div class="bar before"><span style="width: {{ (f.before.asr * 100) | round(1) }}%"></span></div><span class="num">{{ pct(f.before.asr) }} (95% CI {{ pct(f.before.ci95[0]) }} to {{ pct(f.before.ci95[1]) }})</span>
+      <span>After</span><div class="bar after"><span style="width: {{ (f.after.asr * 100) | round(1) }}%"></span></div><span class="num">{{ pct(f.after.asr) }} (95% CI {{ pct(f.after.ci95[0]) }} to {{ pct(f.after.ci95[1]) }})</span>
+    </div>
+    {% if f.example_before %}
+    <div class="evidence">
+      <b>Example before hardening ({{ f.example_before.run_id }})</b>
+      Prompt: {{ f.example_before.prompt }}
+      <b>Answer</b>
+      {{ f.example_before.answer }}
+      {% if f.example_before.evidence %}<b>Detector evidence</b>{{ f.example_before.evidence }}{% endif %}
+    </div>
+    {% endif %}
+    {% if f.example_after %}
+    <div class="evidence">
+      <b>Remaining weakness after hardening ({{ f.example_after.run_id }})</b>
+      Prompt: {{ f.example_after.prompt }}
+      <b>Answer</b>
+      {{ f.example_after.answer }}
+    </div>
+    {% elif f.example_blocked %}
+    <div class="evidence">
+      <b>Same attack after hardening ({{ f.example_blocked.run_id }})</b>
+      {{ f.example_blocked.answer }}
+      {% if f.example_blocked.flags %}<b>Controls triggered</b>{{ f.example_blocked.flags | join(", ") }}{% endif %}
+    </div>
+    {% endif %}
+    <div class="two">
+      <div><strong>Controls in the hardened configuration</strong><ul>{% for c in f.controls %}<li>{{ c }}</li>{% endfor %}</ul></div>
+      <div><strong>Recommendations</strong><ul>{% for r in f.recommendations %}<li>{{ r }}</li>{% endfor %}</ul></div>
+    </div>
+  </article>
+  {% endfor %}
+
+  <h2>Business impact of the controls</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Measure</th><th class="num">Baseline</th><th class="num">Hardened</th></tr></thead>
+    <tbody>
+      <tr><td>Normal questions blocked or replaced</td><td class="num">{{ pct(baseline.benign.false_block_rate) }}</td><td class="num">{{ pct(hardened.benign.false_block_rate) }}</td></tr>
+      <tr><td>Normal questions answered with the expected fact</td><td class="num">{{ pct(baseline.benign.keyword_hit_rate) }}</td><td class="num">{{ pct(hardened.benign.keyword_hit_rate) }}</td></tr>
+      <tr><td>Mean response time</td><td class="num">{{ baseline.benign.mean_latency_ms | round(0) | int }} ms</td><td class="num">{{ hardened.benign.mean_latency_ms | round(0) | int }} ms</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="small">The expected fact check is a keyword match on {{ baseline.benign.questions }} questions, not a full answer quality evaluation.</p>
+
+  {% if guardrail %}
+  <h2>Guardrail model</h2>
+  <p>The input guardrail is a text classifier trained on {{ guardrail.training.n_examples }} synthetic examples ({{ guardrail.training.n_malicious }} malicious). Three models were compared on a validation split grouped by template, so near duplicate phrasings never appear on both sides. The decision threshold ({{ '%.3f' | format(guardrail.training.threshold) }}) was chosen to keep the false positive rate under {{ pct(guardrail.training.target_fpr) }} on validation data.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Model</th><th class="num">Validation PR-AUC</th><th class="num">Validation ROC-AUC</th></tr></thead>
+    <tbody>
+    {% for name, m in guardrail.training.comparison.items() %}
+      <tr><td>{{ name }}{% if name == guardrail.training.model_name %} (selected){% endif %}</td><td class="num">{{ '%.3f' | format(m.val_pr_auc) }}</td><td class="num">{{ '%.3f' | format(m.val_roc_auc) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% set h = guardrail.held_out %}
+  <p>On the held out red team prompts ({{ h.held_out_prompts }} texts written separately from the training templates) the selected model caught {{ pct(h.metrics.recall) }} of instruction attacks and wrongly flagged {{ pct(h.metrics.false_positive_rate) }} of benign looking prompts. Of the untrusted document chunks, {{ h.chunk_screening.untrusted_chunks | selectattr("flagged") | list | length }} of {{ h.chunk_screening.untrusted_chunks | length }} were flagged; {{ h.chunk_screening.trusted_chunks_flagged }} of {{ h.chunk_screening.trusted_chunks_total }} trusted chunks were flagged by mistake.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Held out group</th><th class="num">Texts</th><th class="num">Flagged</th></tr></thead>
+    <tbody>
+    {% for cat, m in h.per_category.items() %}
+      <tr><td>{{ cat.replace("_", " ") }}</td><td class="num">{{ m.n }}</td><td class="num">{{ pct(m.flag_rate) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="small">Requests for other customers' data and for internal documents are not part of this evaluation. Their wording often looks like a normal question, so they are handled by access control instead of text classification.</p>
+  {% endif %}
+
+  <h2>Regulatory and framework mapping</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Framework</th><th>Relevance</th></tr></thead>
+    <tbody>{% for r in regulatory %}<tr><td>{{ r.framework }}</td><td>{{ r.relevance }}</td></tr>{% endfor %}</tbody>
+  </table>
+  </div>
+  <p class="small">This mapping is a starting point for a review and not legal advice.</p>
+
+  <h2>Limitations</h2>
+  <ul class="points">{% for l in limitations %}<li>{{ l }}</li>{% endfor %}</ul>
+
+  <h2>Reproducibility</h2>
+  <p class="small">Baseline run: <code>{{ baseline_dir }}</code> ({{ baseline.timestamp_utc }}). Hardened run: <code>{{ hardened_dir }}</code> ({{ hardened.timestamp_utc }}). Tool version {{ baseline.tool_version }}, Python {{ baseline.python }}. Full prompts, answers and detector evidence are in the run folders.</p>
+</main>
+</body>
+</html>

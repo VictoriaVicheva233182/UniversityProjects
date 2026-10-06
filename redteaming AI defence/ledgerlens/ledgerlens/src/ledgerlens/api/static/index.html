@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LedgerLens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A; --white: #FFFFFF; --lime: #E5EE4E; --red: #A21517;
+    --panel: #141414; --line: #272727; --muted: #9B9B9B;
+    --display: "Anton", Impact, "Arial Narrow Bold", sans-serif;
+    --body: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--black); color: var(--white); font: 15px/1.5 var(--body); font-variant-numeric: tabular-nums; display: flex; flex-direction: column; }
+  button, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+
+  header { display: flex; align-items: baseline; gap: 24px; padding: 18px 28px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .mark { font: 30px/1 var(--display); color: var(--red); }
+  .entity { color: var(--muted); margin-right: auto; }
+  nav { display: flex; gap: 4px; }
+  nav button { background: none; border: 0; padding: 6px 2px; margin-left: 18px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+  nav button[aria-selected="true"] { color: var(--white); border-bottom-color: var(--lime); }
+
+  .view { flex: 1; min-height: 0; }
+  .view[hidden] { display: none; }
+  #review { display: grid; grid-template-columns: 400px minmax(0, 1fr); }
+
+  aside { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  .queue-head { padding: 16px 20px 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .queue-head h2 { font: 22px/1 var(--display); font-weight: 400; margin: 0; }
+  select { background: var(--panel); border: 1px solid var(--line); padding: 6px 8px; }
+  ol.queue { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+  ol.queue li { border-top: 1px solid var(--line); }
+  ol.queue button { width: 100%; text-align: left; background: none; border: 0; border-left: 3px solid transparent; padding: 12px 20px 12px 17px; cursor: pointer; display: grid; grid-template-columns: 44px 1fr auto; gap: 2px 12px; }
+  ol.queue button:hover { background: var(--panel); }
+  ol.queue button[aria-current="true"] { background: var(--panel); border-left-color: var(--lime); }
+  .rank { font: 22px/1.1 var(--display); color: var(--muted); grid-row: span 2; }
+  [aria-current="true"] .rank { color: var(--lime); }
+  .q-amount { font-weight: 700; text-align: right; }
+  .q-why { grid-column: 2 / 4; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .q-done { color: var(--lime); font-size: 12px; }
+
+  section.detail { overflow-y: auto; padding: 32px 40px 64px; }
+  .empty { color: var(--muted); max-width: 46ch; margin-top: 12vh; }
+  .amount { font: 64px/1 var(--display); margin: 0 0 10px; }
+  .sub { color: var(--muted); margin: 0 0 28px; max-width: 70ch; }
+  h3 { font: 600 13px/1.3 var(--body); color: var(--muted); margin: 28px 0 10px; }
+  ul.reasons { list-style: none; margin: 0; padding: 0; max-width: 72ch; }
+  ul.reasons li { padding: 7px 0 7px 22px; position: relative; font-size: 16px; }
+  ul.reasons li::before { content: ""; position: absolute; left: 0; top: 15px; width: 9px; height: 9px; background: var(--lime); }
+  .rules { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rules span { border: 1px solid var(--line); padding: 3px 9px; font-size: 13px; color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; max-width: 760px; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  td.n, th.n { text-align: right; }
+  .wrap { overflow-x: auto; }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 32px; align-items: center; }
+  .primary { background: var(--red); border: 0; padding: 12px 20px; font-weight: 700; cursor: pointer; }
+  .primary:disabled { opacity: 0.6; cursor: wait; }
+  .secondary { background: none; border: 1px solid var(--line); padding: 11px 18px; cursor: pointer; }
+  .secondary:hover { border-color: var(--white); }
+  .status { color: var(--muted); font-size: 14px; }
+  .status.saved { color: var(--lime); }
+  textarea { width: 100%; max-width: 560px; background: var(--panel); border: 1px solid var(--line); padding: 10px; min-height: 64px; resize: vertical; }
+
+  .receipt {
+    --r: 7px; background: var(--white); color: var(--black); max-width: 560px; margin-top: 24px; padding: 30px 26px 28px;
+    -webkit-mask: radial-gradient(var(--r) at 50% 0, #0000 98%, #000) 0 0 / calc(2 * var(--r)) 51% repeat-x,
+                  radial-gradient(var(--r) at 50% 100%, #0000 98%, #000) 0 100% / calc(2 * var(--r)) 51% repeat-x;
+            mask: radial-gradient(var(--r) at 50% 0, #0000 98%, #000) 0 0 / calc(2 * var(--r)) 51% repeat-x,
+                  radial-gradient(var(--r) at 50% 100%, #0000 98%, #000) 0 100% / calc(2 * var(--r)) 51% repeat-x;
+    animation: print 380ms ease-out;
+  }
+  @keyframes print { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  @media (prefers-reduced-motion: reduce) { .receipt { animation: none; } }
+  .receipt .top { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--black); padding-bottom: 8px; margin-bottom: 14px; font-size: 13px; }
+  .receipt h4 { font: 26px/1.05 var(--display); font-weight: 400; margin: 0 0 8px; }
+  .receipt p { margin: 0 0 10px; }
+  .receipt .part { font-weight: 700; font-size: 13px; margin: 14px 0 4px; }
+  .receipt ul { margin: 0; padding-left: 18px; }
+  .receipt li { margin: 3px 0; }
+  .receipt .trail { border-top: 1px dashed var(--black); margin-top: 16px; padding-top: 8px; font-size: 12px; color: #555; }
+  .stamp { display: inline-block; margin-top: 14px; padding: 3px 10px; border: 2px solid var(--red); color: var(--red); font-weight: 700; font-size: 12px; transform: rotate(-2.5deg); }
+  .error { color: #FF8A8A; margin-top: 16px; max-width: 70ch; }
+
+  #evaluation { overflow-y: auto; padding: 32px 40px 64px; }
+  #evaluation h2 { font: 40px/1.05 var(--display); font-weight: 400; margin: 0 0 8px; max-width: 22ch; }
+  .note { color: var(--muted); max-width: 70ch; }
+  .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 320px)); gap: 40px; margin: 32px 0; }
+  .compare b { display: block; font: 64px/1 var(--display); font-weight: 400; }
+  .compare .ours b { color: var(--lime); }
+  .compare span { color: var(--muted); display: block; max-width: 30ch; margin-top: 6px; }
+
+  @media (max-width: 900px) {
+    #review { grid-template-columns: 1fr; }
+    aside { border-right: 0; border-bottom: 1px solid var(--line); max-height: 42vh; }
+    section.detail, #evaluation { padding: 24px 20px 48px; }
+    .amount { font-size: 48px; }
+    .compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="mark">LedgerLens</span>
+  <span class="entity" id="entity">Loading the ledger</span>
+  <nav role="tablist" aria-label="Views">
+    <button role="tab" aria-selected="true" aria-controls="review" data-view="review">Review list</button>
+    <button role="tab" aria-selected="false" aria-controls="evaluation" data-view="evaluation">How well it works</button>
+  </nav>
+</header>
+
+<div class="view" id="review" role="tabpanel">
+  <aside aria-label="Review list">
+    <div class="queue-head">
+      <h2>Review list</h2>
+      <label><span class="sr" hidden>Order</span>
+        <select id="sort" aria-label="Order the list by">
+          <option value="ledgerlens">LedgerLens score</option>
+          <option value="rules">Classic rules only</option>
+        </select>
+      </label>
+    </div>
+    <ol class="queue" id="queue"></ol>
+  </aside>
+  <section class="detail" id="detail" aria-live="polite">
+    <p class="empty">Pick an entry from the list. The top of the list is where LedgerLens thinks the risk is highest.</p>
+  </section>
+</div>
+
+<div class="view" id="evaluation" role="tabpanel" hidden></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const eur = (x) => "€" + Number(x).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nice = (s) => String(s).replaceAll("_", " ");
+let current = null;
+
+async function api(path, options) {
+  const res = await fetch(path, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || `Request failed (${res.status})`);
+  return data;
+}
+
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+  document.querySelectorAll(".view").forEach((v) => (v.hidden = v.id !== b.dataset.view));
+  if (b.dataset.view === "evaluation") loadEvaluation();
+}));
+$("sort").addEventListener("change", loadQueue);
+
+async function loadSummary() {
+  try {
+    const s = await api("/api/summary");
+    $("entity").textContent = `${s.company}, financial year ${s.financial_year}, ${s.entries.toLocaleString("en-GB")} journal entries`;
+  } catch (e) { $("entity").textContent = e.message; }
+}
+
+async function loadQueue() {
+  $("queue").innerHTML = "";
+  try {
+    const items = await api(`/api/queue?sort=${$("sort").value}&limit=150`);
+    for (const it of items) {
+      const li = document.createElement("li");
+      li.innerHTML = `<button type="button" data-id="${esc(it.entry_id)}" ${it.entry_id === current ? 'aria-current="true"' : ""}>
+        <span class="rank">${it.position}</span>
+        <span>${esc(it.entry_id)} <span class="q-done">${it.decision ? nice(it.decision) : ""}</span></span>
+        <span class="q-amount">${eur(it.amount)}</span>
+        <span class="q-why">${esc(it.top_reason || it.description)}</span></button>`;
+      li.querySelector("button").addEventListener("click", () => openEntry(it.entry_id));
+      $("queue").append(li);
+    }
+  } catch (e) {
+    $("queue").innerHTML = `<li class="error" style="padding:16px 20px">${esc(e.message)}</li>`;
+  }
+}
+
+function receipt(inv) {
+  const f = inv.finding, g = inv.grounding;
+  const check = g.grounded ? "Every number found in the ledger" : `Check: ${[...g.ungrounded_numbers, ...g.unknown_ids].join(", ")}`;
+  const looked = inv.steps.filter((s) => s.ok).map((s) => nice(s.tool)).join(", ") || "no tools";
+  return `<article class="receipt">
+    <div class="top"><span>Draft finding, ${esc(inv.entry_id)}</span><span>${esc(nice(f.assessment))}</span></div>
+    <h4>${esc(f.title)}</h4>
+    <p>${esc(f.summary)}</p>
+    ${f.evidence.length ? `<div class="part">Evidence</div><ul>${f.evidence.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+    ${f.risk ? `<div class="part">Why it matters</div><p>${esc(f.risk)}</p>` : ""}
+    ${f.next_steps.length ? `<div class="part">Next steps</div><ul>${f.next_steps.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+    <span class="stamp">${esc(check)}</span>
+    <div class="trail">Looked at: ${esc(looked)}. ${esc(inv.model)}, ${inv.seconds} s${inv.fallback_used ? ". The model did not finish, so this draft lists the detection reasons only." : ""}</div>
+  </article>`;
+}
+
+async function openEntry(id) {
+  current = id;
+  document.querySelectorAll("#queue button").forEach((b) => b.toggleAttribute("aria-current", b.dataset.id === id));
+  document.querySelectorAll("#queue button[aria-current]").forEach((b) => b.setAttribute("aria-current", "true"));
+  const d = $("detail");
+  d.innerHTML = `<p class="status">Loading ${esc(id)}</p>`;
+  let e;
+  try { e = await api(`/api/entries/${id}`); } catch (err) { d.innerHTML = `<p class="error">${esc(err.message)}</p>`; return; }
+  const who = e.approved_by ? `approved by ${esc(e.approved_by)}` : "no approver";
+  d.innerHTML = `
+    <p class="amount">${eur(e.amount)}</p>
+    <p class="sub">${esc(nice(e.entry_type))}${e.counterparty ? ", " + esc(e.counterparty) : ""}. ${esc(e.weekday)} ${esc(e.posting_date)} at ${esc(e.posting_time.slice(0, 5))}, by ${esc(e.created_by)}, ${who}. “${esc(e.description)}”</p>
+    <h3>Why it's on the list</h3>
+    <ul class="reasons">${e.reasons.map((r) => `<li>${esc(r.text)}</li>`).join("") || "<li>No single strong reason; the combination of small signals put it here.</li>"}</ul>
+    ${e.rules.length ? `<h3>Classic rules it hits</h3><div class="rules">${e.rules.map((r) => `<span>${esc(r)}</span>`).join("")}</div>` : ""}
+    <h3>Lines</h3>
+    <div class="wrap"><table><thead><tr><th>Account</th><th class="n">Debit</th><th class="n">Credit</th></tr></thead><tbody>
+      ${e.lines.map((l) => `<tr><td>${esc(l.account)} ${esc(l.account_name)}</td><td class="n">${l.debit ? eur(l.debit) : ""}</td><td class="n">${l.credit ? eur(l.credit) : ""}</td></tr>`).join("")}
+    </tbody></table></div>
+    ${e.related.length ? `<h3>Related entries</h3><div class="wrap"><table><thead><tr><th>Entry</th><th>Date</th><th>Link</th><th class="n">Amount</th></tr></thead><tbody>
+      ${e.related.map((r) => `<tr><td>${esc(r.entry_id)}</td><td>${esc(r.date)} ${esc(r.time.slice(0, 5))}</td><td>${esc(r.relation)}</td><td class="n">${eur(r.amount_eur)}</td></tr>`).join("")}
+    </tbody></table></div>` : ""}
+    <div class="actions"><button class="primary" id="investigate" type="button">Investigate with the copilot</button><span class="status" id="inv-status"></span></div>
+    <div id="finding">${e.investigation ? receipt(e.investigation) : ""}</div>
+    <h3>Your decision</h3>
+    <textarea id="note" placeholder="Note for the audit file (optional)">${esc(e.decision?.note || "")}</textarea>
+    <div class="actions" style="margin-top:12px">
+      <button class="secondary" type="button" data-decision="finding">Mark as finding</button>
+      <button class="secondary" type="button" data-decision="dismissed">Dismiss</button>
+      <span class="status ${e.decision ? "saved" : ""}" id="dec-status">${e.decision ? (e.decision.decision === "finding" ? "Marked as finding" : "Dismissed") : ""}</span>
+    </div>`;
+  $("investigate").addEventListener("click", () => investigate(id));
+  d.querySelectorAll("[data-decision]").forEach((b) => b.addEventListener("click", () => decide(id, b.dataset.decision)));
+  d.scrollTop = 0;
+}
+
+async function investigate(id) {
+  const btn = $("investigate");
+  btn.disabled = true;
+  $("inv-status").textContent = "The copilot is looking through the ledger. With a local model this takes about a minute.";
+  try {
+    const inv = await api(`/api/entries/${id}/investigate`, { method: "POST" });
+    $("finding").innerHTML = receipt(inv);
+    $("inv-status").textContent = "";
+  } catch (err) {
+    $("inv-status").innerHTML = `<span class="error">${esc(err.message)}</span>`;
+  } finally { btn.disabled = false; }
+}
+
+async function decide(id, decision) {
+  try {
+    await api(`/api/entries/${id}/decision`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ decision, note: $("note").value }) });
+    $("dec-status").textContent = decision === "finding" ? "Marked as finding" : "Dismissed";
+    $("dec-status").classList.add("saved");
+    loadQueue();
+  } catch (err) { $("dec-status").textContent = err.message; }
+}
+
+async function loadEvaluation() {
+  const v = $("evaluation");
+  try {
+    const m = await api("/api/evaluation");
+    const ll = m.methods.score_ledgerlens, ru = m.methods.score_rules;
+    const at = (x, k) => x.at_k.find((a) => a.k === k);
+    v.innerHTML = `
+      <h2>How far down the list until every scheme shows up</h2>
+      <p class="note">This page uses the planted answers, which a real auditor would not have. It shows how well each method ranks the ${m.fraud_entries} fraud entries hidden among ${m.population.toLocaleString("en-GB")}.</p>
+      <div class="compare">
+        <div class="ours"><b>${ll.entries_to_find_all_schemes ?? "1,000+"}</b><span>entries on the LedgerLens list before all ${m.schemes} schemes have appeared</span></div>
+        <div><b>${m.rules_any_hit.flagged_entries.toLocaleString("en-GB")}</b><span>entries flagged by the classic rules, the usual starting point</span></div>
+      </div>
+      <div class="wrap"><table><thead><tr><th>Method</th><th class="n">Schemes in first 50</th><th class="n">First 100</th><th class="n">First 200</th><th class="n">Entries to see every scheme</th></tr></thead><tbody>
+        ${Object.values(m.methods).map((x) => `<tr><td>${esc(x.label)}</td><td class="n">${at(x, 50).schemes_found}</td><td class="n">${at(x, 100).schemes_found}</td><td class="n">${at(x, 200).schemes_found}</td><td class="n">${x.entries_to_find_all_schemes?.toLocaleString("en-GB") ?? "not all"}</td></tr>`).join("")}
+      </tbody></table></div>
+      <h3>First appearance of each scheme</h3>
+      <div class="wrap"><table><thead><tr><th>Scheme</th><th class="n">LedgerLens</th><th class="n">Rules</th></tr></thead><tbody>
+        ${Object.entries(m.scheme_titles).map(([k, t]) => `<tr><td>${esc(t)}</td><td class="n">${ll.first_rank_per_scheme[k] ?? ""}</td><td class="n">${(ru.first_rank_per_scheme[k] ?? "").toLocaleString("en-GB")}</td></tr>`).join("")}
+      </tbody></table></div>`;
+  } catch (err) { v.innerHTML = `<p class="error">${esc(err.message)}</p>`; }
+}
+
+loadSummary();
+loadQueue();
+</script>
+</body>
+</html>

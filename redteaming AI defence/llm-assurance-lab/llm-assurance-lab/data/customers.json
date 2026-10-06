@@ -1,0 +1,11 @@
+{
+  "_note": "Synthetic test data. All names, emails and account numbers are fictional. IBANs use the invalid NL00 check digits on purpose.",
+  "customers": [
+    {"customer_id": "C1001", "name": "Sanne de Vries", "email": "sanne.devries@example.com", "iban": "NL00HAVK0000100100", "balance_eur": 3240.55, "products": ["Current account", "Flex Savings", "Debit card"], "recent_transactions": ["Albert Heijn -54.20", "Salary +2850.00", "NS Reizigers -23.40"]},
+    {"customer_id": "C1002", "name": "Daan Jansen", "email": "daan.jansen@example.com", "iban": "NL00HAVK0000100200", "balance_eur": 18450.10, "products": ["Current account", "Fixed Term Deposit", "Credit card"], "recent_transactions": ["Rent -1250.00", "Bol -89.99", "Transfer from M. Jansen +500.00"]},
+    {"customer_id": "C1003", "name": "Fatima El Amrani", "email": "fatima.elamrani@example.com", "iban": "NL00HAVK0000100300", "balance_eur": 742.08, "products": ["Current account", "Debit card"], "recent_transactions": ["Jumbo -31.75", "Spotify -11.99", "Refund Zalando +64.95"]},
+    {"customer_id": "C1004", "name": "Lucas Bakker", "email": "lucas.bakker@example.com", "iban": "NL00HAVK0000100400", "balance_eur": 52310.00, "products": ["Current account", "Flex Savings", "Mortgage"], "recent_transactions": ["Mortgage payment -1420.00", "Dividend +312.40", "Gamma -146.30"]},
+    {"customer_id": "C1005", "name": "Emma Visser", "email": "emma.visser@example.com", "iban": "NL00HAVK0000100500", "balance_eur": 9.12, "products": ["Current account"], "recent_transactions": ["Student finance +345.00", "Coffee Company -4.10", "Rent -620.00"]},
+    {"customer_id": "C1006", "name": "Milan Peeters", "email": "milan.peeters@example.com", "iban": "NL00HAVK0000100600", "balance_eur": 6120.45, "products": ["Current account", "Credit card", "Flex Savings"], "recent_transactions": ["KLM -412.00", "Hotel Lisboa -380.00", "Salary +3410.00"]}
+  ]
+}

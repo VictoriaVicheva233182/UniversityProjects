@@ -1,0 +1,37 @@
+# Hardened profile: same model and data, with layered defenses switched on.
+profile: hardened
+
+llm:
+  provider: ollama
+  model: llama3.2:3b
+  base_url: http://localhost:11434
+  temperature: 0.0
+  max_tokens: 400
+  timeout_s: 120
+
+data:
+  knowledge_base_dir: data/knowledge_base
+  untrusted_sources_dir: data/untrusted_sources
+  customers_file: data/customers.json
+
+retrieval:
+  top_k: 3
+  chunk_max_chars: 700
+  enforce_access_control: true      # only `access: public` documents reach customers
+
+security:
+  hardened_prompt: true             # spotlighting: retrieved text is wrapped and declared as data
+  authorize_customer_lookup: true   # lookup is bound to the logged in customer only
+  sanitize_untrusted_context: true  # instruction-like lines removed from untrusted sources
+  input_classifier:
+    enabled: true
+    model_path: models/guardrail.joblib
+    screen_retrieved_chunks: true   # the same ML model also screens untrusted chunks
+  output_filter:
+    enabled: true
+    allowed_domains: [havenkade.example]
+
+judge:
+  enabled: false
+  provider: ollama
+  model: llama3.2:3b

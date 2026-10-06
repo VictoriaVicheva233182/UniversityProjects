@@ -1,0 +1,63 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Test bench UI + API (http://127.0.0.1:8000)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["assurance_lab.api.app:app", "--host", "127.0.0.1", "--port", "8000"],
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    },
+    {
+      "name": "Full engagement (Ollama)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "assurance_lab.cli",
+      "args": ["all"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Full engagement (simulated, no model needed)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "assurance_lab.cli",
+      "args": ["all", "--provider", "simulated"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Red team: baseline (Ollama)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "assurance_lab.cli",
+      "args": ["redteam", "--config", "configs/baseline.yaml"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Red team: hardened (Ollama)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "assurance_lab.cli",
+      "args": ["redteam", "--config", "configs/hardened.yaml"],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Chat in terminal: hardened",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "assurance_lab.cli",
+      "args": ["chat", "--config", "configs/hardened.yaml"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Pytest: current file",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-q"],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

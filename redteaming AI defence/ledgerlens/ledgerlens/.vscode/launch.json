@@ -1,0 +1,10 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    { "name": "Workbench (http://127.0.0.1:8000)", "type": "debugpy", "request": "launch", "module": "uvicorn", "args": ["ledgerlens.api.app:app", "--port", "8000"], "cwd": "${workspaceFolder}" },
+    { "name": "Full run (Ollama)", "type": "debugpy", "request": "launch", "module": "ledgerlens.cli", "args": ["all"], "cwd": "${workspaceFolder}" },
+    { "name": "Full run (simulated copilot, no model needed)", "type": "debugpy", "request": "launch", "module": "ledgerlens.cli", "args": ["all", "--provider", "simulated"], "cwd": "${workspaceFolder}" },
+    { "name": "Copilot only (Ollama)", "type": "debugpy", "request": "launch", "module": "ledgerlens.cli", "args": ["investigate"], "cwd": "${workspaceFolder}" },
+    { "name": "Pytest: current file", "type": "debugpy", "request": "launch", "module": "pytest", "args": ["${file}", "-q"], "cwd": "${workspaceFolder}" }
+  ]
+}

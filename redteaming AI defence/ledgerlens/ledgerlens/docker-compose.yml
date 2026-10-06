@@ -1,0 +1,23 @@
+# docker compose up --build, then open http://localhost:8000
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes: [ollama:/root/.ollama]
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on: [ollama]
+    environment: { OLLAMA_HOST: "http://ollama:11434" }
+    entrypoint: ["/bin/sh", "-c", "sleep 3 && ollama pull ${LEDGERLENS_LLM_MODEL:-llama3.1:8b}"]
+    restart: "no"
+  app:
+    build: .
+    depends_on:
+      ollama-pull: { condition: service_completed_successfully }
+    environment:
+      LEDGERLENS_LLM_MODEL: ${LEDGERLENS_LLM_MODEL:-llama3.1:8b}
+      LEDGERLENS_LLM_BASE_URL: http://ollama:11434
+    ports: ["8000:8000"]
+    volumes: [output:/app/output]
+volumes:
+  ollama:
+  output:

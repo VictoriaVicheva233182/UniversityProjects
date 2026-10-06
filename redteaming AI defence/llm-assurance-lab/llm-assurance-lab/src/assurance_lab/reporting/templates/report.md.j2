@@ -1,0 +1,85 @@
+# AI assurance report: Havenkade customer assistant
+
+| | |
+|---|---|
+| Date | {{ date }} |
+| System tested | RAG customer assistant, fictional Havenkade Bank N.V. |
+| Target model | {{ baseline.target_llm }} |
+| Scoring | {% if baseline.judge %}Deterministic detectors and LLM judge ({{ baseline.judge }}){% else %}Deterministic detectors and keyword rules{% endif %} |
+| Prepared by | Victoria Vicheva |
+
+{% if simulated %}
+> **Simulated run.** These results come from the scripted test model and are not findings. Run the suite against a real model before sharing this report.
+
+{% endif %}
+## Executive summary
+
+{% for p in summary_points %}
+- {{ p }}
+{% endfor %}
+
+## Findings overview
+
+| ID | Risk | OWASP LLM | Success before | Success after | Rating before | Rating after |
+|---|---|---|---:|---:|---|---|
+{% for f in findings %}
+| {{ f.id }} | {{ f.title }} | {{ f.owasp }} | {{ pct(f.before.asr) }} ({{ f.before.successes }}/{{ f.before.runs }}) | {{ pct(f.after.asr) }} ({{ f.after.successes }}/{{ f.after.runs }}) | {{ f.before.risk.rating }} | {{ f.after.risk.rating }} |
+{% endfor %}
+
+## Detailed findings
+{% for f in findings %}
+
+### {{ f.id }}. {{ f.title }}
+
+{{ f.owasp }}. MITRE ATLAS: {{ f.atlas }}. Impact {{ f.impact }} of 5.
+
+{{ f.description }}
+
+Attack success before: {{ pct(f.before.asr) }} (95% CI {{ pct(f.before.ci95[0]) }} to {{ pct(f.before.ci95[1]) }}). After: {{ pct(f.after.asr) }} (95% CI {{ pct(f.after.ci95[0]) }} to {{ pct(f.after.ci95[1]) }}).
+{% if f.example_before %}
+
+Example before hardening ({{ f.example_before.run_id }}):
+
+> **Prompt:** {{ f.example_before.prompt }}
+>
+> **Answer:** {{ f.example_before.answer }}
+{% endif %}
+
+**Controls in the hardened configuration**
+{% for c in f.controls %}
+- {{ c }}
+{% endfor %}
+
+**Recommendations**
+{% for r in f.recommendations %}
+- {{ r }}
+{% endfor %}
+{% endfor %}
+
+## Business impact of the controls
+
+| Measure | Baseline | Hardened |
+|---|---:|---:|
+| Normal questions blocked or replaced | {{ pct(baseline.benign.false_block_rate) }} | {{ pct(hardened.benign.false_block_rate) }} |
+| Normal questions answered with the expected fact | {{ pct(baseline.benign.keyword_hit_rate) }} | {{ pct(hardened.benign.keyword_hit_rate) }} |
+| Mean response time | {{ baseline.benign.mean_latency_ms | round(0) | int }} ms | {{ hardened.benign.mean_latency_ms | round(0) | int }} ms |
+{% if guardrail %}
+
+## Guardrail model
+
+Selected model: {{ guardrail.training.model_name }}, threshold {{ '%.3f' | format(guardrail.training.threshold) }}. Held out recall on instruction attacks {{ pct(guardrail.held_out.metrics.recall) }}, false positive rate {{ pct(guardrail.held_out.metrics.false_positive_rate) }}.
+{% endif %}
+
+## Regulatory and framework mapping
+
+| Framework | Relevance |
+|---|---|
+{% for r in regulatory %}
+| {{ r.framework }} | {{ r.relevance }} |
+{% endfor %}
+
+## Limitations
+
+{% for l in limitations %}
+- {{ l }}
+{% endfor %}

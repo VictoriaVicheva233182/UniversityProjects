@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journal entry testing report: {{ m.company }} {{ m.financial_year }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0A0A0A; --white: #FFFFFF; --red: #A21517; --pink: #ECBDD8;
+    --grey: #5E5E5E; --rule: #E4E4E4;
+    --display: "Anton", Impact, "Arial Narrow Bold", sans-serif;
+    --body: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--white); color: var(--black); font: 16px/1.6 var(--body); font-variant-numeric: tabular-nums; }
+  main { max-width: 940px; margin: 0 auto; padding: 56px 32px 96px; }
+  .mark { font: 22px/1 var(--display); color: var(--red); letter-spacing: 0.01em; }
+  h1 { font: 72px/0.98 var(--display); font-weight: 400; margin: 28px 0 20px; max-width: 13ch; letter-spacing: -0.005em; }
+  h2 { font: 36px/1.05 var(--display); font-weight: 400; margin: 72px 0 12px; }
+  h3 { font: 600 17px/1.3 var(--body); margin: 0 0 4px; }
+  p, li { max-width: 68ch; }
+  .lede { font-size: 19px; color: var(--grey); margin: 0; }
+  .meta { display: grid; grid-template-columns: max-content 1fr; gap: 2px 24px; margin: 36px 0 0; padding-top: 16px; border-top: 2px solid var(--black); font-size: 14px; }
+  .meta dt { color: var(--grey); }
+  .meta dd { margin: 0; font-weight: 600; }
+  .notice { margin: 28px 0 0; padding: 14px 18px; background: var(--pink); }
+  .figures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 28px 0 8px; }
+  .figure b { display: block; font: 52px/1 var(--display); font-weight: 400; }
+  .figure span { display: block; font-size: 14px; color: var(--grey); margin-top: 6px; max-width: 26ch; }
+  .wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+  th, td { text-align: left; padding: 10px 10px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-weight: 600; border-bottom: 2px solid var(--black); }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  tr.ours td { font-weight: 700; }
+  .small { font-size: 13px; color: var(--grey); }
+  svg text { font-family: var(--body); font-size: 12px; fill: var(--grey); }
+  svg .label { fill: var(--black); font-weight: 600; }
+  .receipts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 20px; }
+  .receipt {
+    --r: 6px; background: var(--pink); padding: 26px 22px 24px; font-size: 14px;
+    -webkit-mask: radial-gradient(var(--r) at 50% 0, #0000 98%, #000) 0 0 / calc(2 * var(--r)) 51% repeat-x,
+                  radial-gradient(var(--r) at 50% 100%, #0000 98%, #000) 0 100% / calc(2 * var(--r)) 51% repeat-x;
+            mask: radial-gradient(var(--r) at 50% 0, #0000 98%, #000) 0 0 / calc(2 * var(--r)) 51% repeat-x,
+                  radial-gradient(var(--r) at 50% 100%, #0000 98%, #000) 0 100% / calc(2 * var(--r)) 51% repeat-x;
+  }
+  .receipt .top { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px dashed var(--black); padding-bottom: 8px; margin-bottom: 10px; }
+  .receipt ul { margin: 8px 0; padding-left: 18px; }
+  .receipt li { margin: 3px 0; }
+  .stamp { display: inline-block; margin-top: 12px; padding: 3px 9px; border: 2px solid var(--red); color: var(--red); font-weight: 700; font-size: 12px; transform: rotate(-2.5deg); }
+  .verdict { font-weight: 700; }
+  @media (max-width: 720px) {
+    main { padding: 32px 20px 64px; }
+    h1 { font-size: 48px; }
+    .figures, .receipts { grid-template-columns: 1fr; }
+  }
+  @media print { main { padding: 0; } h2 { break-after: avoid; } .receipt, table { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">LedgerLens</div>
+  <h1>{{ big }}</h1>
+  <p class="lede">{{ small }}</p>
+  <dl class="meta">
+    <dt>Entity</dt><dd>{{ m.company }} (fictional)</dd>
+    <dt>Financial year</dt><dd>{{ m.financial_year }}</dd>
+    <dt>Population</dt><dd>{{ '{:,}'.format(m.population) }} journal entries, {{ m.users }} users, {{ m.suppliers }} suppliers</dd>
+    <dt>Report date</dt><dd>{{ date }}</dd>
+    <dt>Prepared by</dt><dd>Victoria Vicheva</dd>
+  </dl>
+  {% if copilot and copilot.simulated %}
+  <p class="notice"><strong>The copilot findings below come from the scripted test model.</strong> They show that the investigation works end to end. Run <code>ledgerlens investigate</code> with a real model for findings written by an LLM.</p>
+  {% endif %}
+
+  <div class="figures">
+    <div class="figure"><b>{{ '{:,}'.format(m.rules_any_hit.flagged_entries) }}</b><span>entries flagged by the classic audit rules</span></div>
+    <div class="figure"><b>{{ methods[0].entries_to_find_all_schemes if methods[0].entries_to_find_all_schemes else '1,000+' }}</b><span>entries LedgerLens needed to show every fraud scheme</span></div>
+    <div class="figure"><b>{{ methods[0].at[100].fraud_entries }} of {{ m.fraud_entries }}</b><span>fraud entries in the first 100 of the review list</span></div>
+  </div>
+
+  <h2>What was tested</h2>
+  <p>A full year of bookkeeping for a fictional Dutch logistics company: sales, receipts, supplier invoices, payments, payroll, depreciation and month-end journals. Hidden inside are {{ m.schemes }} fraud schemes ({{ m.fraud_entries }} entries) based on common journal entry fraud patterns. The ledger also contains many legitimate entries that look odd to simple rules, such as nightly system batches, Saturday invoicing and round rent payments.</p>
+  <p>Four methods ranked every entry from most to least risky. The planted answers were only used afterwards, to score the methods. Nothing in the detection step reads them.</p>
+
+  <h2>Rules against the model</h2>
+  <p>An auditor reviews a list from the top down. The question is how far down they have to go before they have seen every scheme.</p>
+  <svg viewBox="0 0 {{ coverage.w }} {{ coverage.h }}" width="100%" role="img" aria-label="Fraud schemes found against the number of entries reviewed, per method">
+    {% for t in coverage.yticks %}
+    <line x1="{{ coverage.left }}" x2="{{ coverage.right }}" y1="{{ t.y }}" y2="{{ t.y }}" stroke="#E4E4E4"/>
+    <text x="{{ coverage.left - 10 }}" y="{{ t.y + 4 }}" text-anchor="end">{{ t.label }}</text>
+    {% endfor %}
+    {% for t in coverage.xticks %}
+    <text x="{{ t.x }}" y="{{ coverage.bottom + 22 }}" text-anchor="middle">{{ t.label }}</text>
+    {% endfor %}
+    {% for s in coverage.series %}
+    <polyline points="{{ s.points }}" fill="none" stroke="{{ s.stroke }}" stroke-width="{{ s.width }}" stroke-dasharray="{{ s.dash }}" stroke-linejoin="round"/>
+    <text class="label" x="{{ s.end[0] + 10 }}" y="{{ s.label_y + 4 }}">{{ s.label }}</text>
+    {% endfor %}
+  </svg>
+  <p class="small">Vertical: fraud schemes with at least one entry on the list (of {{ m.schemes }}). Horizontal: number of entries reviewed, from the top of each method's list.</p>
+
+  <div class="wrap">
+  <table>
+    <thead><tr><th>Method</th><th class="n">Schemes in first 50</th><th class="n">First 100</th><th class="n">First 200</th><th class="n">Fraud entries in first 100</th><th class="n">Entries to see every scheme</th></tr></thead>
+    <tbody>
+    {% for x in methods %}
+      <tr class="{{ 'ours' if x.key == 'score_ledgerlens' else '' }}">
+        <td>{{ x.label }}</td>
+        <td class="n">{{ x.at[50].schemes_found }}</td><td class="n">{{ x.at[100].schemes_found }}</td><td class="n">{{ x.at[200].schemes_found }}</td>
+        <td class="n">{{ x.at[100].fraud_entries }}</td>
+        <td class="n">{{ '{:,}'.format(x.entries_to_find_all_schemes) if x.entries_to_find_all_schemes else 'not all' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p>The classic rules flag {{ '{:,}'.format(m.rules_any_hit.flagged_entries) }} entries ({{ '%.1f' | format(m.rules_any_hit.flagged_share * 100) }}% of the ledger), and together they touch {{ m.rules_any_hit.schemes_with_a_flag }} of {{ m.schemes }} schemes. The problem is the length of that list, not what is on it. The LedgerLens score combines the rule hits with an autoencoder that learned what normal looks like for each user and account, so entries that are unusual in several ways rise to the top.</p>
+
+  <h2>The {{ m.schemes }} schemes</h2>
+  <div class="wrap">
+  <table>
+    <thead><tr><th>Scheme</th><th>What happened</th><th class="n">LedgerLens rank</th><th class="n">Rules rank</th></tr></thead>
+    <tbody>
+    {% for s in schemes %}
+      <tr><td><strong>{{ s.title }}</strong></td><td>{{ s.how }}</td><td class="n">{{ s.rank_ledgerlens }}</td><td class="n">{{ '{:,}'.format(s.rank_rules) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="small">Rank is the position of the first entry of that scheme on each method's list. Lower is better.</p>
+
+  {% if findings %}
+  <h2>Draft findings from the copilot</h2>
+  <p>For the highest ranked entries, the copilot looked up the entry, the person who posted it, the supplier and related entries, then wrote a draft finding. Every number in a draft is checked against what the tools returned.{% if copilot %} {{ copilot.investigated }} entries were investigated with {{ copilot.model }}; {{ ((copilot.grounded_share or 0) * 100) | round | int }}% of drafts passed the number check{% if copilot.suspicious_on_fraud is not none %}, and {{ ((copilot.suspicious_on_fraud or 0) * 100) | round | int }}% of the fraud entries among them were called suspicious{% endif %}.{% endif %}</p>
+  <div class="receipts">
+    {% for f in findings %}
+    <article class="receipt">
+      <div class="top"><span>{{ f.entry_id }}</span><span class="verdict">{{ f.finding.assessment.replace('_', ' ') }}</span></div>
+      <h3>{{ f.finding.title }}</h3>
+      <p style="margin:4px 0 0">{{ f.finding.summary }}</p>
+      <ul>{% for ev in f.finding.evidence[:5] %}<li>{{ ev }}</li>{% endfor %}</ul>
+      {% if f.grounding.grounded %}<span class="stamp">Every number found in the ledger</span>{% else %}<span class="stamp">Check: {{ (f.grounding.ungrounded_numbers + f.grounding.unknown_ids) | join(', ') }}</span>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h2>Benford's law</h2>
+  <p>In many real-world amounts the first digit is 1 about 30% of the time and 9 less than 5% of the time. Supplier invoices that break this pattern can point to made-up amounts. For {{ '{:,}'.format(benford.n) }} purchase invoices the mean absolute deviation is {{ benford.mad }}, which is <strong>{{ benford.verdict }}</strong> by Nigrini's thresholds.</p>
+  <svg viewBox="0 0 {{ benford_chart.w }} {{ benford_chart.h }}" width="100%" role="img" aria-label="First digit distribution of purchase invoice amounts against Benford's law">
+    {% for b in benford_chart.bars %}
+    <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" fill="#0A0A0A"/>
+    <text x="{{ b.ex }}" y="{{ benford_chart.base + 20 }}" text-anchor="middle">{{ b.digit }}</text>
+    {% endfor %}
+    <polyline points="{{ benford_chart.expected_points }}" fill="none" stroke="#A21517" stroke-width="2"/>
+    {% for b in benford_chart.bars %}<circle cx="{{ b.ex }}" cy="{{ b.ey }}" r="3.5" fill="#A21517"/>{% endfor %}
+  </svg>
+  <p class="small">Bars: share of invoices per first digit. Red line: what Benford's law expects.</p>
+
+  <h2>How this fits the audit</h2>
+  <p>ISA 240 requires the auditor to test the appropriateness of journal entries, because management can override controls through them. LedgerLens supports that work: it ranks the population, explains every flag in plain language and drafts findings with evidence. It does not decide anything. The auditor selects, investigates and concludes, and every draft is checked against the ledger before it is shown.</p>
+  <ul>
+    <li>ISA 240: fraud risk and testing of journal entries for management override</li>
+    <li>ISA 330: responses to assessed risks, with the ranking as input for selecting entries</li>
+    <li>ISA 500: audit evidence, which is why every claim in a draft must trace back to ledger data</li>
+  </ul>
+
+  <h2>Limitations</h2>
+  <ul>
+    <li>The company and all data are synthetic. The method is the point, not these exact numbers.</li>
+    <li>The fraud schemes were written by the same person who built the detector. Real fraud is more varied, so a real engagement would also need fresh test cases from fraud specialists.</li>
+    <li>The combination of rules and autoencoder was chosen on a development ledger (seed 7) and reported on a fresh one (seed {{ m.seed }}). It has not been tested on real company data.</li>
+    <li>The copilot can misread evidence. The number check catches made-up figures, not wrong conclusions, so every draft still needs an auditor's judgement.</li>
+  </ul>
+  <p class="small">LedgerLens {{ m.tool_version }}, analysed {{ m.analyzed_at_utc }}, seed {{ m.seed }}, scale {{ m.scale }}.</p>
+</main>
+</body>
+</html>

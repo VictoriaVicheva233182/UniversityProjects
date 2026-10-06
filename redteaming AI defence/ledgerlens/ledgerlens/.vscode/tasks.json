@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup: create .venv and install",
+      "type": "shell",
+      "command": "python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip && .venv/bin/python -m pip install -e '.[dev]'",
+      "windows": { "command": "py -3 -m venv .venv; .venv\\Scripts\\python -m pip install --upgrade pip; .venv\\Scripts\\python -m pip install -e .[dev]" },
+      "problemMatcher": []
+    },
+    { "label": "Tests", "type": "shell", "command": "${command:python.interpreterPath}", "args": ["-m", "pytest", "-q"], "group": { "kind": "test", "isDefault": true }, "problemMatcher": [] },
+    { "label": "Full run (Ollama)", "type": "shell", "command": "${command:python.interpreterPath}", "args": ["-m", "ledgerlens.cli", "all"], "group": { "kind": "build", "isDefault": true }, "problemMatcher": [] },
+    { "label": "Full run (simulated copilot)", "type": "shell", "command": "${command:python.interpreterPath}", "args": ["-m", "ledgerlens.cli", "all", "--provider", "simulated"], "problemMatcher": [] },
+    { "label": "Workbench", "type": "shell", "command": "${command:python.interpreterPath}", "args": ["-m", "ledgerlens.cli", "serve"], "isBackground": true, "problemMatcher": [] }
+  ]
+}
