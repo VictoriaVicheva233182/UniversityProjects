@@ -34,7 +34,7 @@ I build machine learning systems and test whether AI can be trusted. This reposi
 
 I built an AI customer assistant for a fictional bank, attacked it in 7 ways (prompt injection, data leaks, a poisoned document, jailbreaks), then fixed what broke. A machine learning guardrail I trained, access control in code and an output filter took attack success from 32% to 0% against Llama 3.1 8B. The project ends with a client-style assurance report mapped to OWASP, MITRE ATLAS, the EU AI Act, GDPR and DORA.
 
-**Key finding:** the model was not the weak point, the system design was. Llama refused every jailbreak by itself, but still leaked another customer's data in 3 of 4 attempts. Only controls in code fixed that.
+**Key finding:** the model was not the weak point, the system design was. Llama refused every jailbreak by itself, but still leaked another customer's data in 3 of 4 attempts. Only controls in code fixed that. Keep in mind that the data which was use was synthetic and of course in real life this problem would have more variations, and would not be so linear. 
 
 `Red teaming` `ML guardrail` `RAG` `Risk rating` `FastAPI` `Ollama`
 
